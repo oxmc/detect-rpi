@@ -14,7 +14,7 @@ var PI_MODEL_NO = [
     'RP3A0'      // Raspberry Pi Zero 2 W (SiP)
 ];
 
-function isPi(model) {
+function isPiModel(model) {
     return PI_MODEL_NO.includes(model);
 }
 
@@ -54,13 +54,13 @@ function detect() {
     const info = parseCpuInfo();
     if (!info) return false;
 
-    if (info.hardware && isPi(info.hardware)) return true;
+    if (info.hardware && isPiModel(info.hardware)) return true;
     if (info.model && modelLooksLikePi(info.model)) return true;
 
     return false;
 }
 
-// Add helpers to the exported function
+// Extra helpers
 detect.model = function () {
     const info = parseCpuInfo();
     return info?.model || null;
@@ -69,6 +69,30 @@ detect.model = function () {
 detect.revision = function () {
     const info = parseCpuInfo();
     return info?.revision || null;
+};
+
+detect.info = function () {
+    const info = parseCpuInfo();
+    if (!info) {
+        return {
+            isPi: false,
+            model: null,
+            hardware: null,
+            revision: null
+        };
+    }
+
+    const isPi = (
+        (info.hardware && isPiModel(info.hardware)) ||
+        (info.model && modelLooksLikePi(info.model))
+    );
+
+    return {
+        isPi,
+        model: info.model,
+        hardware: info.hardware,
+        revision: info.revision
+    };
 };
 
 module.exports = detect;
